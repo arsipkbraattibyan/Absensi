@@ -183,6 +183,7 @@ var S = { token:"", nama:"", kelas:"", mode:"", target:"", siswa:[], samples:[],
 var K = { token:"", nama:"", kelas:[] }, W = { token:"", nama:"", kelas:"" };
 var modelsReady = false, stream = null, audioCtx = null, audioTit = new Audio("bunyi.mp3");
 var $ = function(i){ return document.getElementById(i); };
+var COOLDOWN = 6000, terakhir = {};   // jeda (ms) sebelum murid yang sama boleh berbunyi lagi
 var VIEWS = ["vPilih","vLogin","vKLogin","vWali","vWaliHasil","vKepsek","vKRekap","vCam","vDash","vRekap"];
 
 function show(id){ VIEWS.forEach(function(v){ $(v).classList.add("hidden"); }); $(id).classList.remove("hidden"); }
@@ -471,7 +472,7 @@ function mulaiScan(){
   if(!S.siswa.some(function(x){ return x.desc; })){
     say($("dashMsg"), "Belum ada murid yang wajahnya terdaftar. Tekan tombol 📷 Wajah di samping nama murid.", "err"); return;
   }
-  unlockSuara(); S.mode = "scan"; S.selesai = {};
+  unlockSuara(); S.mode = "scan"; S.selesai = {}; terakhir = {};
   bukaKamera("Scan Wajah Murid", "Arahkan wajah murid ke kamera satu per satu. Absen tercatat otomatis.");
 }
 function startCam(){
@@ -532,21 +533,40 @@ function cocok(desc){
   });
   return (best.d < THRESHOLD && kedua - best.d > MARGIN) ? best.nama : "";
 }
+
+// murid yang sudah tercatat lalu di-scan lagi: tetap berbunyi dan disebut namanya
+function sapaUlang(nama){
+  var now = Date.now();
+  if(terakhir[nama] && now - terakhir[nama] < COOLDOWN) return;
+  terakhir[nama] = now;
+  var st = "hadir";
+  S.siswa.forEach(function(x){ if(x.nama === nama && x.status) st = x.status.toLowerCase(); });
+  tit();
+  setTimeout(function(){ bicara(nama + " sudah tercatat " + st + " hari ini."); }, JEDA);
+  logBaris("🔁 " + nama + " — sudah tercatat " + st);
+}
 function catatHadir(nama){
-  S.selesai[nama] = true;
+  S.selesai[nama] = true; terakhir[nama] = Date.now();
   api("simpanAbsen", { token:S.token, records:[{ nama:nama, status:"Hadir" }], skipJikaAda:true }).then(function(r){
     if(sesiHabis(r)){ logout(r.message); return; }
     if(r.status === "success"){
+      terakhir[nama] = Date.now();
+      S.siswa.forEach(function(x){ if(x.nama === nama) x.status = "Hadir"; });
       tit(); S.lastUcapan = susunUcapan(r); $("btnUlang").style.display = "block";
       setTimeout(function(){ bicara(S.lastUcapan); }, JEDA); logBaris("✅ " + nama + " — Hadir");
-    } else if(r.status === "warning"){ logBaris("ℹ️ " + r.message); }
-    else { delete S.selesai[nama]; logBaris("⚠️ " + r.message); }
+    } else if(r.status === "warning"){
+      terakhir[nama] = Date.now();
+      var st = (r.sudah && r.sudah[0] && r.sudah[0].status) ? String(r.sudah[0].status) : "hadir";
+      S.siswa.forEach(function(x){ if(x.nama === nama) x.status = st; });
+      tit(); setTimeout(function(){ bicara(nama + " sudah tercatat " + st.toLowerCase() + " hari ini."); }, JEDA);
+      logBaris("ℹ️ " + nama + " — sudah tercatat " + st);
+    } else { delete S.selesai[nama]; logBaris("⚠️ " + r.message); }
   }).catch(function(e){ delete S.selesai[nama]; logBaris("⚠️ " + galat(e)); });
 }
 function scanLoop(){
   if(!S.scanning || !stream) return;
   faceapi.detectAllFaces($("video"), opsi()).withFaceLandmarks().withFaceDescriptors().then(function(hs){
-    hs.forEach(function(h){ var n = cocok(h.descriptor); if(n && !S.selesai[n]) catatHadir(n); });
+    hs.forEach(function(h){ var n = cocok(h.descriptor); if(n){ if(S.selesai[n]) sapaUlang(n); else catatHadir(n); } });
   }).catch(function(){}).then(function(){ setTimeout(scanLoop, 600); });
 }
 $("fileCam").onchange = function(){
@@ -563,7 +583,7 @@ $("fileCam").onchange = function(){
     }
     return faceapi.detectAllFaces(img, opsi()).withFaceLandmarks().withFaceDescriptors().then(function(arr){
       var k = 0;
-      arr.forEach(function(h){ var n = cocok(h.descriptor); if(n){ k++; if(!S.selesai[n]) catatHadir(n); } });
+      arr.forEach(function(h){ var n = cocok(h.descriptor); if(n){ k++; if(S.selesai[n]) sapaUlang(n); else catatHadir(n); } });
       say($("camMsg"), k ? "Wajah dikenali: " + k : "Wajah tidak dikenali. Pastikan murid sudah terdaftar.", k ? "ok" : "err");
     });
   }).catch(function(e){ say($("camMsg"), "Gagal memproses foto: " + (e && e.message ? e.message : e), "err"); });
