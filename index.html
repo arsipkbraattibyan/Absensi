@@ -393,7 +393,7 @@ var API_URL = "https://script.google.com/macros/s/AKfycbw3OUXrLnRP5mYT-MIEDbaD5r
  
 var MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/";
 var FACEAPI_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
-var THRESHOLD = 0.5, MARGIN = 0.03, JUMLAH = 3, JEDA = 1000;
+var THRESHOLD = 0.5, MARGIN = 0.03, JUMLAH = 3, JEDA = 500;
 var S = { token:"", nama:"", kelas:"", mode:"", target:"", siswa:[], samples:[], selesai:{}, scanning:false, lastUcapan:"" };
 var K = { token:"", nama:"", kelas:[] }, W = { token:"", nama:"", kelas:"" };
 var modelsReady = false, stream = null, audioCtx = null, audioTit = new Audio("bunyi.mp3");
@@ -866,22 +866,25 @@ function prosesNama(n){
   else if(!coba[n] || Date.now() - coba[n] > 5000){ coba[n] = Date.now(); catatHadir(n); }
 }
 function catatHadir(nama){
-  var t0 = Date.now();
-  S.selesai[nama] = true; terakhir[nama] = t0;
-  tit();                                        // bunyi langsung begitu wajah dikenali, tanpa menunggu server
-  function tunda(){ return Math.max(0, JEDA - (Date.now() - t0)); }
+  S.selesai[nama] = true; terakhir[nama] = Date.now();
+  tit();                                        // bunyi langsung begitu wajah dikenali
+  // suara langsung, tidak menunggu server
+  var kalimat = nama + " hadir.";
+  S.lastUcapan = kalimat; $("btnUlang").style.display = "block";
+  setTimeout(function(){ bicara(kalimat); }, JEDA);
+  logBaris("✅ " + nama + " — Hadir");
+
+  // penyimpanan ke server berjalan di belakang
   api("simpanAbsen", { token:S.token, records:[{ nama:nama, status:"Hadir" }], skipJikaAda:true }).then(function(r){
     if(sesiHabis(r)){ logout(r.message); return; }
     if(r.status === "success"){
       terakhir[nama] = Date.now();
       S.siswa.forEach(function(x){ if(x.nama === nama) x.status = "Hadir"; });
-      S.lastUcapan = susunUcapan(r); $("btnUlang").style.display = "block";
-      setTimeout(function(){ bicara(S.lastUcapan); }, tunda()); logBaris("✅ " + nama + " — Hadir");
     } else if(r.status === "warning"){
       terakhir[nama] = Date.now();
-      var st = (r.sudah && r.sudah[0] && r.sudah[0].status) ? String(r.sudah[0].status) : "hadir";
+      var st = (r.sudah && r.sudah[0] && r.sudah[0].status) ? String(r.sudah[0].status) : "Hadir";
       S.siswa.forEach(function(x){ if(x.nama === nama) x.status = st; });
-      setTimeout(function(){ bicara(nama + " sudah " + st.toLowerCase() + "."); }, tunda());
+      if(st.toLowerCase() !== "hadir"){ bicara(nama + " sudah " + st.toLowerCase() + "."); }
       logBaris("ℹ️ " + nama + " — sudah tercatat " + st);
     } else { delete S.selesai[nama]; logBaris("⚠️ " + r.message); }
   }).catch(function(e){ delete S.selesai[nama]; logBaris("⚠️ " + galat(e)); });
