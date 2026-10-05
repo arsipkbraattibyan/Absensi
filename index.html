@@ -240,7 +240,7 @@ video{object-fit:cover}
 #vCam.aktif h3{margin-bottom:8px}
 #vCam.aktif video{flex:0 1 46vh;flex:0 1 46dvh;min-height:150px;max-height:none;object-fit:cover;margin-bottom:0}
 #vCam.aktif #scanLog{flex:0 1 auto;min-height:0;max-height:10vh;max-height:10dvh;overflow-y:auto}
- 
+
 /* ---- ringan untuk HP murah ---- */
 body{background:var(--bg)}
 .logo-login{filter:none}
@@ -869,11 +869,11 @@ function catatHadir(nama){
   S.selesai[nama] = true; terakhir[nama] = Date.now();
   tit();                                        // bunyi langsung begitu wajah dikenali
   // suara langsung, tidak menunggu server
-  var kalimat = nama + " hadir.";
+  var kalimat = nama + " hadir hari ini.";
   S.lastUcapan = kalimat; $("btnUlang").style.display = "block";
   setTimeout(function(){ bicara(kalimat); }, JEDA);
   logBaris("✅ " + nama + " — Hadir");
- 
+
   // penyimpanan ke server berjalan di belakang
   api("simpanAbsen", { token:S.token, records:[{ nama:nama, status:"Hadir" }], skipJikaAda:true }).then(function(r){
     if(sesiHabis(r)){ logout(r.message); return; }
