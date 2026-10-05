@@ -167,6 +167,7 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
     <button onclick="simpanManual()">💾 Simpan Manual</button>
     <div id="dashMsg" class="msg"></div>
     <button class="gray" id="btnUlang" style="display:none" onclick="bicara(S.lastUcapan)">🔊 Ulangi Suara</button>
+    <button class="gray" onclick="tesSuara()">🔈 Tes Suara</button>
   </div>
   <button class="red" onclick="logout()">🚪 Keluar</button>
 </div>
@@ -266,15 +267,65 @@ function unlockSuara(){
     if(p && p.then) p.then(function(){ audioTit.pause(); audioTit.currentTime = 0; audioTit.muted = false; })
                      .catch(function(){ audioTit.muted = false; });
   }catch(e){}
-  if("speechSynthesis" in window){ var u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); }
+  try{ ttsAudio.src = SENYAP; var q = ttsAudio.play(); if(q && q.catch) q.catch(function(){}); }catch(e){}
+  if("speechSynthesis" in window){
+    try{ var u = new SpeechSynthesisUtterance("."); u.volume = 0; speechSynthesis.speak(u); }catch(e){}
+  }
+}
+
+// ---------- suara bicara (tahan banting di berbagai HP) ----------
+var SENYAP = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+var ttsAudio = new Audio(), suaraIndo = null, ttsTiket = 0;
+function bahasaIndo(v){
+  var l = String(v.lang || "").toLowerCase().replace("_", "-");
+  return l === "id" || l === "in" || l.indexOf("id-") === 0 || l.indexOf("in-") === 0;   // sebagian HP Android memakai "in-ID"
+}
+function muatSuara(){
+  if(!("speechSynthesis" in window)) return;
+  try{ suaraIndo = (speechSynthesis.getVoices() || []).filter(bahasaIndo)[0] || null; }catch(e){}
+}
+if("speechSynthesis" in window){ muatSuara(); try{ speechSynthesis.onvoiceschanged = muatSuara; }catch(e){} }
+
+// cadangan: suara online (butuh internet), dipakai jika HP tidak punya suara bahasa Indonesia
+function suaraOnline(t){
+  var tiket = ++ttsTiket, bag = [], kata = String(t).split(" "), cur = "";
+  kata.forEach(function(k){
+    if((cur + " " + k).length > 170){ bag.push(cur); cur = k; } else { cur = cur ? cur + " " + k : k; }
+  });
+  if(cur) bag.push(cur);
+  var i = 0;
+  function lanjut(){
+    if(tiket !== ttsTiket || i >= bag.length) return;
+    ttsAudio.onended = lanjut; ttsAudio.onerror = lanjut;
+    ttsAudio.src = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=id&q=" + encodeURIComponent(bag[i++]);
+    var p = ttsAudio.play(); if(p && p.catch) p.catch(function(){});
+  }
+  lanjut();
 }
 function bicara(t){
-  if(!t || !("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  var u = new SpeechSynthesisUtterance(t); u.lang = "id-ID"; u.rate = 0.9; u.pitch = 1.1;
-  var v = speechSynthesis.getVoices().filter(function(x){ return x.lang && x.lang.toLowerCase().replace("_","-").indexOf("id") === 0; });
-  if(v[0]) u.voice = v[0];
-  speechSynthesis.speak(u);
+  if(!t) return;
+  ttsTiket++;                                   // hentikan suara online yang masih berjalan
+  try{ ttsAudio.pause(); }catch(e){}
+  if(!("speechSynthesis" in window)){ suaraOnline(t); return; }
+  try{
+    muatSuara();
+    var adaDaftar = (speechSynthesis.getVoices() || []).length > 0;
+    if(adaDaftar && !suaraIndo){ suaraOnline(t); return; }   // HP tidak punya suara Indonesia
+    if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+    if(speechSynthesis.paused) speechSynthesis.resume();
+    var u = new SpeechSynthesisUtterance(t), mulai = false, timer;
+    u.lang = "id-ID"; u.rate = 0.9; u.pitch = 1.1; u.volume = 1;
+    if(suaraIndo){ u.voice = suaraIndo; u.lang = suaraIndo.lang; }
+    u.onstart = function(){ mulai = true; clearTimeout(timer); };
+    u.onerror = function(){ clearTimeout(timer); if(!mulai) suaraOnline(t); };
+    speechSynthesis.speak(u);
+    timer = setTimeout(function(){ if(!mulai){ try{ speechSynthesis.cancel(); }catch(e){} suaraOnline(t); } }, 2500);
+  }catch(e){ suaraOnline(t); }
+}
+function tesSuara(){
+  unlockSuara();
+  tit();
+  setTimeout(function(){ bicara("Tes suara. Absensi siap digunakan."); }, JEDA);
 }
 function susunUcapan(r){
   var h = r.hasil || [];
@@ -478,7 +529,7 @@ function mulaiScan(){
   bukaKamera("Scan Wajah Murid", "Arahkan wajah murid ke kamera satu per satu. Absen tercatat otomatis.");
 }
 function startCam(){
-  initAudio();
+  unlockSuara();
   muatModel().then(function(){
     return navigator.mediaDevices.getUserMedia({ video:{ facingMode:"user" }, audio:false });
   }).then(function(st){
