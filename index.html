@@ -240,6 +240,13 @@ video{object-fit:cover}
 #vCam.aktif h3{margin-bottom:8px}
 #vCam.aktif video{flex:0 1 46vh;flex:0 1 46dvh;min-height:150px;max-height:none;object-fit:cover;margin-bottom:0}
 #vCam.aktif #scanLog{flex:0 1 auto;min-height:0;max-height:10vh;max-height:10dvh;overflow-y:auto}
+
+/* ---- ringan untuk HP murah ---- */
+body{background:var(--bg)}
+.logo-login{filter:none}
+.card,.head{box-shadow:0 1px 3px rgba(15,27,45,.08)}
+.head::after{display:none}
+button,.role.guru,.role.guru:hover,.role.kepsek,.role.kepsek:hover,.role.wali,.role.wali:hover{box-shadow:none}
 </style>
 </head>
 <body>
@@ -379,13 +386,13 @@ video{object-fit:cover}
 <div class="foot">© KB RA At Tibyan · Membangun Generasi Robbani Berprestasi</div>
 </div>
  
-<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
 <script>
 // ===== GANTI dengan URL deployment Apps Script (berakhiran /exec) =====
 var API_URL = "https://script.google.com/macros/s/AKfycbw3OUXrLnRP5mYT-MIEDbaD5rIy9-TrGKSBpoQvixRokuqvf6XkVfYJJ9xziNwQlIg6/exec";
 // =====================================================================
  
 var MODEL_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/";
+var FACEAPI_URL = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
 var THRESHOLD = 0.5, MARGIN = 0.03, JUMLAH = 3, JEDA = 1000;
 var S = { token:"", nama:"", kelas:"", mode:"", target:"", siswa:[], samples:[], selesai:{}, scanning:false, lastUcapan:"" };
 var K = { token:"", nama:"", kelas:[] }, W = { token:"", nama:"", kelas:"" };
@@ -680,7 +687,7 @@ function openDash(){
 function muatSiswa(){
   $("listSiswa").textContent = "Memuat...";
   ambil("getSiswa", { token:S.token }, $("dashMsg"), function(r){
-    S.siswa = r.siswa.map(function(x){ return { nama:x.nama, status:x.status, desc:x.desc, nilai:x.status || "" }; });
+    S.siswa = r.siswa.map(function(x){ return { nama:x.nama, status:x.status, ada:x.ada, desc:null, nilai:x.status || "" }; });
     renderSiswa();
   }, logout);
 }
@@ -690,7 +697,7 @@ function renderSiswa(){
     var row = document.createElement("div"); row.className = "siswa";
     var nm = document.createElement("div"); nm.className = "nm"; nm.appendChild(document.createTextNode(x.nama));
     [[x.status ? "Tersimpan hari ini: " + x.status : "Belum absen hari ini", x.status],
-     [x.desc ? "Wajah sudah terdaftar" : "Wajah belum terdaftar", x.desc]].forEach(function(a){
+     [x.ada ? "Wajah sudah terdaftar" : "Wajah belum terdaftar", x.ada]].forEach(function(a){
       var s = document.createElement("small"); s.textContent = a[0]; if(a[1]) s.className = "ok2"; nm.appendChild(s);
     });
     var sel = document.createElement("select");
@@ -712,7 +719,9 @@ function simpanManual(){
     if(sesiHabis(r)){ logout(r.message); return; }
     if(r.status !== "success"){ say($("dashMsg"), r.message, "err"); return; }
     say($("dashMsg"), r.message, "ok");
-    S.lastUcapan = susunUcapan(r); $("btnUlang").style.display = "block"; bicara(S.lastUcapan); muatSiswa();
+    S.lastUcapan = susunUcapan(r); $("btnUlang").style.display = "block"; bicara(S.lastUcapan);
+    r.hasil.forEach(function(h){ S.siswa.forEach(function(x){ if(x.nama === h.nama){ x.status = h.status; x.nilai = h.status; } }); });
+    renderSiswa();
   }).catch(function(e){ say($("dashMsg"), galat(e), "err"); });
 }
 function bukaRekap(){
@@ -730,14 +739,27 @@ function muatRekap(){
  
 // ---------- kamera & wajah ----------
 function opsi(n){ return new faceapi.TinyFaceDetectorOptions({ inputSize:n || 320, scoreThreshold:0.5 }); }
+// pustaka face-api (±1 MB) baru diunduh saat kamera dibutuhkan
+function muatFaceApi(){
+  if(window.faceapi) return Promise.resolve();
+  return new Promise(function(ok, gagal){
+    var s = document.createElement("script");
+    s.src = FACEAPI_URL;
+    s.onload = ok;
+    s.onerror = function(){ gagal(new Error("Gagal memuat pustaka wajah. Cek internet.")); };
+    document.head.appendChild(s);
+  });
+}
 function muatModel(){
   if(modelsReady) return Promise.resolve();
   say($("camMsg"), "Memuat model wajah (butuh internet, tunggu sebentar)...", "info");
-  return Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-  ]).then(function(){ modelsReady = true; });
+  return muatFaceApi().then(function(){
+    return Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+    ]);
+  }).then(function(){ modelsReady = true; });
 }
 function bukaKamera(judul, desc){
   stopCam(); $("camTitle").textContent = judul; $("camDesc").textContent = desc;
@@ -749,11 +771,18 @@ function daftarWajah(i){
   bukaKamera("Daftarkan Wajah: " + x.nama, "Ambil " + JUMLAH + " sampel wajah. Hadapkan wajah ke kamera dengan cahaya cukup.");
 }
 function mulaiScan(){
-  if(!S.siswa.some(function(x){ return x.desc; })){
+  if(!S.siswa.some(function(x){ return x.ada; })){
     say($("dashMsg"), "Belum ada murid yang wajahnya terdaftar. Tekan tombol 📷 di samping nama murid.", "err"); return;
   }
-  unlockSuara(); S.mode = "scan"; S.selesai = {}; terakhir = {}; coba = {};
-  bukaKamera("Scan Wajah Murid", "Arahkan wajah murid ke kamera satu per satu. Absen tercatat otomatis.");
+  unlockSuara(); say($("dashMsg"), "Memuat data wajah...", "info");
+  api("getWajah", { token:S.token }).then(function(r){
+    if(sesiHabis(r)){ logout(r.message); return; }
+    if(r.status !== "success"){ say($("dashMsg"), r.message, "err"); return; }
+    S.siswa.forEach(function(x){ x.desc = r.wajah[x.nama] || null; });
+    say($("dashMsg"), "");
+    S.mode = "scan"; S.selesai = {}; terakhir = {}; coba = {};
+    bukaKamera("Scan Wajah Murid", "Arahkan wajah murid ke kamera satu per satu. Absen tercatat otomatis.");
+  }).catch(function(e){ say($("dashMsg"), galat(e), "err"); });
 }
 function startCam(){
   unlockSuara();
@@ -780,7 +809,12 @@ function stopCam(){
   $("video").srcObject = null; $("video").classList.add("hidden"); $("vCam").classList.remove("aktif");
   $("btnCam").classList.remove("hidden"); $("btnSnap").classList.add("hidden");
 }
-function closeCam(){ stopCam(); show("vDash"); muatSiswa(); }
+// tutup kamera: tidak memuat ulang dari server, cukup tampilkan daftar yang sudah ada
+function closeCam(){
+  stopCam();
+  S.siswa.forEach(function(x){ if(x.status) x.nilai = x.status; });
+  show("vDash"); renderSiswa();
+}
 function logBaris(t){ var d = document.createElement("div"); d.textContent = t; $("scanLog").insertBefore(d, $("scanLog").firstChild); }
  
 function snap(){
@@ -800,6 +834,7 @@ function tambahSampel(desc){
     S.samples = [];
     if(sesiHabis(r)){ logout(r.message); return; }
     if(r.status !== "success"){ say($("camMsg"), r.message, "err"); return; }
+    S.siswa.forEach(function(x){ if(x.nama === S.target) x.ada = true; });
     say($("camMsg"), r.message, "ok"); stopCam();
   }).catch(function(e){ S.samples = []; say($("camMsg"), galat(e), "err"); });
 }
