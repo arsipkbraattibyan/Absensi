@@ -233,6 +233,13 @@ video{object-fit:cover}
 #vDash select{padding:7px 6px;font-size:12.5px}
 #vDash button.mini{padding:8px 10px;font-size:15px}
 #vDash #listSiswa{margin-top:8px!important}
+ 
+/* ---- kamera aktif: video lebih besar, tapi tidak memenuhi layar (menyusut otomatis bila ruang sempit) ---- */
+#vCam.aktif:not(.hidden){display:flex;flex-direction:column;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);margin-bottom:0}
+#vCam.aktif #camDesc{display:none}
+#vCam.aktif h3{margin-bottom:8px}
+#vCam.aktif video{flex:0 1 46vh;flex:0 1 46dvh;min-height:150px;max-height:none;object-fit:cover;margin-bottom:0}
+#vCam.aktif #scanLog{flex:0 1 auto;min-height:0;max-height:10vh;max-height:10dvh;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -753,7 +760,7 @@ function startCam(){
   muatModel().then(function(){
     return navigator.mediaDevices.getUserMedia({ video:{ facingMode:"user", width:{ ideal:480 }, height:{ ideal:480 }, frameRate:{ ideal:15 } }, audio:false });
   }).then(function(st){
-    stream = st; var v = $("video"); v.srcObject = st; v.classList.remove("hidden");
+    stream = st; var v = $("video"); v.srcObject = st; v.classList.remove("hidden"); $("vCam").classList.add("aktif");
     $("preview").classList.add("hidden"); $("btnCam").classList.add("hidden");
     return v.play();
   }).then(function(){
@@ -770,7 +777,7 @@ function startCam(){
 function stopCam(){
   S.scanning = false;
   if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
-  $("video").srcObject = null; $("video").classList.add("hidden");
+  $("video").srcObject = null; $("video").classList.add("hidden"); $("vCam").classList.remove("aktif");
   $("btnCam").classList.remove("hidden"); $("btnSnap").classList.add("hidden");
 }
 function closeCam(){ stopCam(); show("vDash"); muatSiswa(); }
