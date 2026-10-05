@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#2196f3">
 <title>Absensi Online KB RA At Tibyan</title>
@@ -18,13 +19,8 @@
   --r:22px; --r-sm:14px;
   --shadow:0 1px 2px rgba(15,27,45,.04),0 12px 32px -8px rgba(47,125,246,.14);
 }
-@media (prefers-color-scheme:dark){
-  :root{--ink:#eef3fb;--ink2:#b6c3d6;--muted:#8393aa;--line:#22304a;--bg:#0b1220;--card:#121c30;--field:#182440;
-    --brand-soft:#16284a;--accent-soft:#33280f;--ok-soft:#10302a;--bad-soft:#38181b;--violet-soft:#241d4a;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -8px rgba(0,0,0,.5)}
-}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--bg)}
+html{background:var(--bg);color-scheme:light}
 body{margin:0;font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
   line-height:1.5;padding:18px 16px 44px;min-height:100vh;-webkit-font-smoothing:antialiased;
   background:
@@ -151,6 +147,92 @@ button.kepsek,button.wali{color:#fff}
 #srvStatus{background:transparent;padding:6px 0 0;margin-top:16px}
 #srvStatus.ok{color:#2e9b50}
 .ucapan{display:none;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:14px;text-align:center}
+
+/* ===== v2-fit: semua halaman muat satu layar HP, tanpa scroll halaman ===== */
+body{display:flex;min-height:100vh;min-height:100dvh;padding:12px 16px}
+.wrap{width:100%;margin:auto;padding:0}
+.card{padding:18px;margin-bottom:12px;border-radius:24px}
+.head{padding:14px 18px;margin-bottom:12px;border-radius:22px}
+.head h2{font-size:18px;margin:0 0 6px}
+.head div{font-size:13px}
+h3{font-size:17px;margin-bottom:10px}
+button{padding:12px 16px;margin-top:8px;font-size:15px}
+input[type=text],input[type=password],input[type=month],input[type=date],select.full{padding:12px 14px;margin-bottom:10px}
+.msg{margin-top:8px}
+.foot{margin-top:8px;font-size:11px}
+.bar{display:flex;gap:8px;margin-top:8px}.bar button{margin-top:0}
+
+/* beranda */
+.logo-login{width:auto;max-width:70%;height:clamp(80px,18vh,140px);height:clamp(80px,18dvh,140px);margin:0 auto 8px}
+.judul{margin-bottom:12px}
+.judul .t1,.judul .t2{font-size:clamp(20px,3.8vh,26px);font-size:clamp(20px,3.8dvh,26px)}
+.judul hr{margin:10px auto 0}
+.lead{margin:2px 0;font-size:14px}
+.role{padding:11px 14px;margin-top:9px}
+.role .ic{flex:0 0 42px;height:42px;font-size:21px}
+.role .tx b{font-size:16px}
+#srvStatus{margin-top:10px;padding:2px 0 0}
+
+/* dashboard guru: daftar murid bergulir di dalam kartu */
+#vDash:not(.hidden){display:flex;flex-direction:column;height:calc(100vh - 24px);height:calc(100dvh - 24px)}
+#vDash .card{flex:1;min-height:0;display:flex;flex-direction:column;margin-bottom:8px}
+#vDash .card h3{display:none}
+#vDash #listSiswa{flex:1;min-height:90px;overflow-y:auto;margin:10px 0 0!important}
+#vDash button.red{margin-top:0}
+#vDash .siswa{padding:8px 0}
+
+/* rekap & ringkasan: daftar bergulir di dalam kotak */
+#rkList,#krList,#wrList{max-height:30vh;max-height:30dvh;overflow-y:auto}
+#kList{max-height:34vh;max-height:34dvh;overflow-y:auto}
+
+/* kamera */
+video,#preview{max-height:34vh;max-height:34dvh}
+video{object-fit:cover}
+#preview{object-fit:contain}
+#scanLog{max-height:14vh;max-height:14dvh;margin-top:8px}
+.ucapan{margin-top:8px;padding:10px 12px}
+#camDesc{margin:-4px 0 8px!important;font-size:13px!important}
+
+@media (max-height:640px){
+  .role .tx small{display:none}
+  .foot{display:none}
+  .logo-login{height:clamp(60px,15vh,100px);height:clamp(60px,15dvh,100px)}
+  .card{padding:14px 16px}
+}
+
+/* ---- perbaikan lanjutan: kartu menyesuaikan tinggi layar, daftar bergulir di dalam ---- */
+.wrap > .foot{display:none}
+.wrap:has(#vPilih:not(.hidden)) > .foot{display:block}
+#vKepsek:not(.hidden),#vKRekap:not(.hidden),#vRekap:not(.hidden),#vWaliHasil:not(.hidden){
+  display:flex;flex-direction:column;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}
+#vKepsek .card{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;margin-bottom:8px}
+#vKepsek .card h3{display:none}
+#vKepsek button.red{margin-top:0}
+#vKepsek #kList{flex:1 1 auto;min-height:70px;max-height:none;overflow-y:auto}
+#vKRekap #krList,#vRekap #rkList,#vWaliHasil #wrList{flex:1 1 auto;min-height:60px;max-height:none;overflow-y:auto}
+#vKRekap .siswa,#vRekap .siswa,#vWaliHasil .siswa{padding:8px 0}
+@media (max-height:640px){
+  .wrap:has(#vPilih:not(.hidden)) > .foot{display:none}
+}
+#vKRekap.card,#vRekap.card,#vWaliHasil.card{margin-bottom:0}
+
+/* ---- dashboard lebih ringkas supaya daftar murid lebih lega ---- */
+.bar button{font-size:13.5px;padding:11px 8px}
+#vDash .head,#vKepsek .head{padding:10px 16px;margin-bottom:8px}
+#vDash .head h2,#vKepsek .head h2{font-size:16px;margin:0 0 3px}
+#vDash .head div,#vKepsek .head div{font-size:12.5px;line-height:1.4}
+#vDash .card{padding:12px 14px}
+#vDash .bar button{padding:9px 8px;font-size:13px}
+#vDash .bar{margin-top:6px}
+#vDash .card > button{padding:10px 14px;margin-top:6px}
+#vDash button.red{padding:10px 14px}
+#vDash .msg{margin-top:4px;font-size:12.5px}
+#vDash .siswa{gap:6px}
+#vDash .siswa .nm{font-size:14px;line-height:1.25}
+#vDash .siswa small{font-size:10.5px}
+#vDash select{padding:7px 6px;font-size:12.5px}
+#vDash button.mini{padding:8px 10px;font-size:15px}
+#vDash #listSiswa{margin-top:8px!important}
 </style>
 </head>
 <body>
@@ -212,8 +294,8 @@ button.kepsek,button.wali{color:#fff}
   <div class="card">
     <h3>Ringkasan Absensi</h3>
     <input type="date" id="kTanggal">
-    <button class="purple" onclick="muatRingkasan()">Tampilkan</button>
-    <button class="gray" onclick="bukaKRekap()">📊 Rekap Siswa</button>
+    <div class="bar"><button class="purple" onclick="muatRingkasan()">Tampilkan</button>
+    <button class="gray" onclick="bukaKRekap()">📊 Rekap Siswa</button></div>
     <div id="kMsg" class="msg"></div>
     <div id="kTotal" class="b"></div>
     <div id="kList"></div>
@@ -241,8 +323,8 @@ button.kepsek,button.wali{color:#fff}
   <input type="file" id="fileCam" accept="image/*" capture="user" class="hidden">
   <button id="btnCam" onclick="startCam()">📷 Aktifkan Kamera</button>
   <button id="btnSnap" class="green hidden" onclick="snap()">✅ Ambil Sampel Wajah</button>
-  <button class="gray" onclick="$('fileCam').click()">Pakai aplikasi kamera HP</button>
-  <button class="red" onclick="closeCam()">Selesai</button>
+  <div class="bar"><button class="gray" onclick="$('fileCam').click()">Pakai kamera HP</button>
+  <button class="red" onclick="closeCam()">Selesai</button></div>
   <div id="camMsg" class="msg"></div>
   <div id="ucapanBox" class="ucapan"></div>
   <div id="scanLog"></div>
@@ -267,17 +349,21 @@ button.kepsek,button.wali{color:#fff}
   </div>
   <div class="card">
     <h3>Absensi Siswa</h3>
-    <button class="green" onclick="mulaiScan()">📸 Scan Wajah Murid</button>
-    <button class="gray" onclick="bukaRekap()">📊 Rekap Siswa</button>
-    <div class="bar" style="margin-top:10px">
+    <div class="bar" style="margin-top:0">
+      <button class="green" onclick="mulaiScan()">📸 Scan Wajah</button>
+      <button class="gray" onclick="bukaRekap()">📊 Rekap</button>
+    </div>
+    <div class="bar">
       <button class="gray" onclick="setSemua('Hadir')">Semua Hadir</button>
       <button class="gray" onclick="muatSiswa()">Muat Ulang</button>
     </div>
-    <div id="listSiswa" style="margin-top:12px">Memuat...</div>
+    <div id="listSiswa">Memuat...</div>
     <button onclick="simpanManual()">💾 Simpan Manual</button>
     <div id="dashMsg" class="msg"></div>
-    <button class="gray" id="btnUlang" style="display:none" onclick="bicara(S.lastUcapan)">🔊 Ulangi Suara</button>
-    <button class="gray" onclick="tesSuara()">🔈 Tes Suara</button>
+    <div class="bar">
+      <button class="gray" id="btnUlang" style="display:none" onclick="bicara(S.lastUcapan)">🔊 Ulangi Suara</button>
+      <button class="gray" onclick="tesSuara()">🔈 Tes Suara</button>
+    </div>
     <div id="suaraInfo" class="msg"></div>
   </div>
   <button class="red" onclick="logout()">Keluar</button>
@@ -607,7 +693,7 @@ function renderSiswa(){
       var op = document.createElement("option"); op.value = st; op.textContent = st || "-"; sel.appendChild(op);
     });
     sel.value = x.nilai; sel.onchange = function(){ x.nilai = sel.value; }; x.el = sel;
-    var bt = document.createElement("button"); bt.className = "mini gray"; bt.textContent = "📷 Wajah";
+    var bt = document.createElement("button"); bt.className = "mini gray"; bt.textContent = "📷"; bt.title = "Daftarkan wajah";
     bt.onclick = function(){ daftarWajah(i); };
     row.appendChild(nm); row.appendChild(sel); row.appendChild(bt); box.appendChild(row);
   });
@@ -659,7 +745,7 @@ function daftarWajah(i){
 }
 function mulaiScan(){
   if(!S.siswa.some(function(x){ return x.desc; })){
-    say($("dashMsg"), "Belum ada murid yang wajahnya terdaftar. Tekan tombol 📷 Wajah di samping nama murid.", "err"); return;
+    say($("dashMsg"), "Belum ada murid yang wajahnya terdaftar. Tekan tombol 📷 di samping nama murid.", "err"); return;
   }
   unlockSuara(); S.mode = "scan"; S.selesai = {}; terakhir = {};
   bukaKamera("Scan Wajah Murid", "Arahkan wajah murid ke kamera satu per satu. Absen tercatat otomatis.");
