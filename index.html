@@ -3,47 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2196f3">
 <title>Absensi Online KB RA At Tibyan</title>
 <link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;padding:16px}
-.wrap{max-width:480px;margin:auto}
-.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
-.head{background:#2196F3;color:#fff;border-radius:14px;padding:18px;margin-bottom:14px}
-.head.kepsek{background:#5e35b1}
-.head h2{margin:0 0 6px}
+:root{
+  --brand:#2f7df6; --brand2:#5b9dff; --brand-soft:#eaf2ff;
+  --accent:#ffb020; --accent-soft:#fff5e0;
+  --ok:#16a679; --ok-soft:#e6f7f1; --bad:#e5484d; --bad-soft:#fdecec; --violet:#7a5af8; --violet-soft:#f0ecff;
+  --ink:#0f1b2d; --ink2:#3d4f66; --muted:#7a8aa0; --line:#e8eef6;
+  --bg:#f6f8fc; --card:#ffffff; --field:#f3f6fb;
+  --r:22px; --r-sm:14px;
+  --shadow:0 1px 2px rgba(15,27,45,.04),0 12px 32px -8px rgba(47,125,246,.14);
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#eef3fb;--ink2:#b6c3d6;--muted:#8393aa;--line:#22304a;--bg:#0b1220;--card:#121c30;--field:#182440;
+    --brand-soft:#16284a;--accent-soft:#33280f;--ok-soft:#10302a;--bad-soft:#38181b;--violet-soft:#241d4a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px -8px rgba(0,0,0,.5)}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+  line-height:1.5;padding:18px 16px 44px;min-height:100vh;-webkit-font-smoothing:antialiased;
+  background:
+   radial-gradient(520px 320px at 100% -4%,rgba(91,157,255,.26),transparent 70%),
+   radial-gradient(420px 300px at -10% 6%,rgba(255,176,32,.14),transparent 70%),
+   var(--bg);background-repeat:no-repeat}
+.wrap{max-width:460px;margin:auto}
+
+.card{background:var(--card);border-radius:var(--r);padding:26px 20px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.head{position:relative;overflow:hidden;color:#fff;border-radius:var(--r);padding:24px 22px;margin-bottom:16px;
+  background:linear-gradient(135deg,#2f7df6,#5b9dff 70%,#7fb4ff);box-shadow:0 18px 36px -14px rgba(47,125,246,.55)}
+.head::after{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.35),rgba(255,255,255,0) 70%)}
+.head.kepsek{background:linear-gradient(135deg,#6a4cf0,#8d74ff 75%);box-shadow:0 18px 36px -14px rgba(122,90,248,.55)}
+.head h2{margin:0 0 10px;font-size:21px;font-weight:800;letter-spacing:-.3px;position:relative;z-index:1}
+.head div{font-size:13.5px;font-weight:500;opacity:.95;position:relative;z-index:1}
+.head b{font-weight:700}
 h2,h3{margin-top:0}
-input[type=text],input[type=password]{width:100%;padding:12px;margin-bottom:12px;border:1px solid #ccc;border-radius:6px;font-size:15px}
-input[type=month],input[type=date]{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:15px}
-button{width:100%;padding:13px;border:0;border-radius:8px;background:#2196F3;color:#fff;font-size:15px;margin-top:8px;cursor:pointer}
-button:disabled{background:#999}
-button.red{background:#e53935}button.green{background:#43a047}button.gray{background:#757575}button.purple{background:#5e35b1}
-button.kepsek{background:#e53935}
-button.wali{background:#fbc02d;color:#333}
-button.mini{width:auto;margin:0;padding:8px 10px;font-size:14px}
-.msg{margin-top:10px;text-align:center;font-size:14px}
-.err{color:#d32f2f}.ok{color:#2e7d32}.info{color:#1976D2}
+h3{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:16px}
+
+input[type=text],input[type=password],input[type=month],input[type=date],select.full{
+  width:100%;padding:14px 16px;margin-bottom:12px;border:1.5px solid transparent;border-radius:var(--r-sm);
+  font-size:15px;font-weight:500;background:var(--field);color:var(--ink);transition:.18s;font-family:inherit}
+input::placeholder{color:var(--muted);font-weight:500}
+input[type=month],input[type=date]{margin-bottom:4px}
+input:focus,select:focus{outline:none;border-color:var(--brand);background:var(--card);box-shadow:0 0 0 4px rgba(47,125,246,.14)}
+select{padding:9px 10px;border-radius:12px;border:1.5px solid transparent;font-size:13.5px;font-weight:600;background:var(--field);font-family:inherit;color:var(--ink)}
+select.full{margin-bottom:10px;font-size:15px;padding:14px 16px;font-weight:500}
+
+button{width:100%;padding:14px 18px;border:0;border-radius:999px;background:var(--brand);color:#fff;font-size:15px;
+  font-weight:700;margin-top:10px;cursor:pointer;font-family:inherit;letter-spacing:-.1px;
+  box-shadow:0 10px 22px -10px rgba(47,125,246,.7);transition:transform .15s,box-shadow .15s,background .15s}
+button:hover{background:#2269dc}
+button:active{transform:scale(.975)}
+button:disabled{background:#b6c2d4;box-shadow:none;cursor:not-allowed}
+button.red{background:var(--bad);box-shadow:0 10px 22px -10px rgba(229,72,77,.6)}button.red:hover{background:#d13a3f}
+button.green{background:var(--ok);box-shadow:0 10px 22px -10px rgba(22,166,121,.6)}button.green:hover{background:#0f9269}
+button.purple{background:var(--violet);box-shadow:0 10px 22px -10px rgba(122,90,248,.65)}button.purple:hover{background:#6746e8}
+button.gray{background:var(--field);color:var(--ink2);box-shadow:none}
+button.gray:hover{background:var(--line)}
+button.mini{width:auto;margin:0;padding:9px 13px;font-size:12.5px;white-space:nowrap}
+
+/* pilihan peran */
+.role{display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;background:var(--card);color:var(--ink);
+  border:1.5px solid var(--line);border-radius:20px;font-size:16px;margin-top:12px;box-shadow:none;transition:.18s}
+.role:hover{background:var(--card);border-color:var(--brand2);transform:translateY(-2px);box-shadow:0 14px 28px -14px rgba(47,125,246,.45)}
+.role .ic{flex:0 0 48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:23px}
+.role .tx{flex:1}.role .tx b{display:block;font-size:16px;font-weight:800;letter-spacing:-.2px}
+.role .tx small{font-size:12.5px;color:var(--muted);font-weight:500}
+.role .ar{width:30px;height:30px;border-radius:50%;background:var(--field);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;transition:.18s}
+.role:hover .ar{background:var(--brand);color:#fff}
+.role.guru .ic{background:var(--brand-soft)}
+.role.kepsek .ic{background:var(--violet-soft)}
+.role.wali .ic{background:var(--accent-soft)}
+button.kepsek,button.wali{color:var(--ink)}
+
+.msg{margin-top:12px;text-align:center;font-size:13.5px;font-weight:600}
+.msg:empty{margin:0}
+.err{color:var(--bad)}.ok{color:var(--ok)}.info{color:var(--brand)}
 .hidden{display:none}
-video{width:100%;border-radius:10px;background:#000;transform:scaleX(-1)}
-#preview{width:100%;border-radius:10px;background:#000;max-height:320px;object-fit:contain}
-.siswa{display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid #eee}
-.siswa .nm{flex:1;font-size:15px}
-.siswa small{display:block;font-size:11px;color:#888}
-.siswa small.ok2{color:#2e7d32}
-.st-Belum{color:#d32f2f}
-select{padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px}
-select.full{width:100%;margin-bottom:8px;padding:10px;font-size:15px}
+video{width:100%;border-radius:var(--r);background:#000;transform:scaleX(-1);margin-bottom:4px}
+#preview{width:100%;border-radius:var(--r);background:#000;max-height:320px;object-fit:contain}
+
+/* daftar murid */
+.siswa{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.siswa:last-child{border-bottom:0}
+.siswa .nm{flex:1;font-size:15px;font-weight:700;letter-spacing:-.2px}
+.siswa small{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px}
+.siswa small.ok2{color:var(--ok)}
+.st-Belum{color:var(--bad);font-size:12.5px;font-weight:700;background:var(--bad-soft);padding:4px 10px;border-radius:999px}
 .bar{display:flex;gap:8px}.bar button{margin-top:0}
-#scanLog{margin-top:10px;font-size:14px;max-height:180px;overflow:auto}
-#scanLog div{padding:6px 0;border-bottom:1px solid #eee}
-.judul{text-align:center;margin-bottom:18px}
-.judul p{font-size:22px;font-weight:bold;color:#2196F3;margin:4px 0 0}
-.judul hr{border:0;border-top:2px solid #e3f2fd;margin:14px 0 0}
-.logo-login{display:block;margin:0 auto 10px;width:150px;height:150px;object-fit:contain}
-details{border:1px solid #eee;border-radius:8px;padding:8px 10px;margin-top:8px}
-summary{cursor:pointer;font-size:14px;line-height:1.5}
-.b{margin-top:10px;font-size:15px;font-weight:bold}
+#scanLog{margin-top:12px;font-size:14px;font-weight:500;max-height:180px;overflow:auto}
+#scanLog div{padding:10px 12px;margin-bottom:6px;background:var(--field);border-radius:12px}
+
+/* judul login */
+.judul{text-align:center;margin-bottom:22px}
+.judul p{margin:0}
+.judul .t1{display:inline-block;font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--brand);font-weight:800;background:var(--brand-soft);padding:6px 14px;border-radius:999px}
+.judul .t2{font-size:27px;font-weight:800;letter-spacing:-.8px;margin-top:12px;line-height:1.15;color:var(--ink)}
+.judul hr{display:none}
+.logo-login{display:block;margin:2px auto 16px;width:128px;height:128px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(15,27,45,.14))}
+.sub{font-size:13.5px;color:var(--muted);text-align:center;margin:-6px 0 16px;font-weight:500}
+.lead{text-align:center;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.6px;margin:0 0 2px}
+
+#srvStatus{font-size:12px;margin-top:20px;padding:10px 14px;border-radius:999px;background:var(--field);font-weight:600}
+#srvStatus:empty{display:none}
+#srvStatus.ok::before,#srvStatus.err::before,#srvStatus.info::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;
+  margin-right:8px;background:currentColor;vertical-align:middle}
+#srvStatus.ok::before{box-shadow:0 0 0 4px rgba(22,166,121,.2)}
+
+details{border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;margin-top:10px;background:var(--card)}
+details[open]{border-color:var(--brand2)}
+summary{cursor:pointer;font-size:13.5px;line-height:1.55;font-weight:700}
+details .siswa{padding:10px 0;font-size:14px}
+details .siswa .nm{font-weight:600}
+.b{margin-top:14px;font-size:14px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:var(--r-sm);padding:12px 14px}
+.b:empty{display:none}
+.foot{text-align:center;font-size:11.5px;color:var(--muted);margin-top:20px;font-weight:500}
+
+/* ===== v2: tetap seperti tampilan awal (tombol biru/merah/kuning), dipoles modern ===== */
+:root{--brand:#2196f3;--brand-soft:#e8f3fe}
+.card{padding:28px 22px;border-radius:26px}
+.logo-login{width:150px;height:150px;margin:0 auto 10px}
+.judul{margin-bottom:18px}
+.judul .t1,.judul .t2{display:block;background:none;padding:0;border-radius:0;text-transform:none;letter-spacing:-.6px;
+  font-size:26px;font-weight:800;line-height:1.2;margin:0;color:#1e8ee9}
+.judul .t2{margin-top:2px}
+.judul hr{display:block;border:0;height:4px;width:48px;margin:16px auto 0;border-radius:4px;
+  background:linear-gradient(90deg,#2196f3,#7cc4ff)}
+.lead{font-size:15px;font-weight:700;color:var(--ink);text-transform:none;letter-spacing:-.1px;margin:4px 0 6px}
+
+.role{position:relative;border:0;color:#fff;padding:15px 18px;border-radius:18px;margin-top:12px;overflow:hidden}
+.role::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%);pointer-events:none}
+.role .ic{background:rgba(255,255,255,.96);box-shadow:0 4px 10px -4px rgba(0,0,0,.25);border-radius:14px}
+.role .tx b{color:inherit;font-weight:800;font-size:17px}
+.role .tx small{color:inherit;opacity:.88;font-weight:500}
+.role .ar,.role:hover .ar{background:rgba(255,255,255,.25);color:inherit}
+.role.guru,.role.guru:hover{background:linear-gradient(135deg,#34a6fa,#1b84e3);box-shadow:0 14px 26px -14px rgba(33,150,243,.9)}
+.role.kepsek,.role.kepsek:hover{background:linear-gradient(135deg,#f2605c,#df3834);box-shadow:0 14px 26px -14px rgba(229,57,53,.85)}
+.role.wali,.role.wali:hover{background:linear-gradient(135deg,#fdd453,#f6b81c);color:#4a3600;box-shadow:0 14px 26px -14px rgba(246,184,28,.95)}
+.role:hover{transform:translateY(-2px);border-color:transparent}
+.role.guru .ic,.role.kepsek .ic,.role.wali .ic{background:rgba(255,255,255,.96)}
+button.kepsek,button.wali{color:#fff}
+#srvStatus{background:transparent;padding:6px 0 0;margin-top:16px}
+#srvStatus.ok{color:#2e9b50}
+.ucapan{display:none;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:14px;text-align:center}
 </style>
 </head>
 <body>
@@ -51,45 +158,47 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
 
 <div id="vPilih" class="card">
   <img src="logo.png" class="logo-login" alt="Logo sekolah" onerror="this.style.display='none'">
-  <div class="judul"><p>Absensi Online</p><p>KB RA At Tibyan</p><hr></div>
-  <p style="text-align:center;font-size:16px;font-weight:bold;color:#333;margin:0 0 10px">Masuk sebagai</p>
-  <button onclick="pilih('vLogin')">👩‍🏫 Guru</button>
-<button class="kepsek" onclick="pilih('vKLogin')">🧑‍💼 Kepala Sekolah</button>
-<button class="wali" onclick="pilih('vWali')">👨‍👩‍👧 Wali Murid</button>
-  <div id="srvStatus" class="msg" style="font-size:12px"></div>
+  <div class="judul"><p class="t1">Absensi Online</p><p class="t2">KB RA At Tibyan</p><hr></div>
+  <p class="lead">Masuk sebagai</p>
+  <button class="role guru" onclick="pilih('vLogin')"><span class="ic">👩‍🏫</span><span class="tx"><b>Guru</b><small>Absensi &amp; scan wajah murid</small></span><span class="ar">›</span></button>
+  <button class="role kepsek" onclick="pilih('vKLogin')"><span class="ic">🧕</span><span class="tx"><b>Kepala Sekolah</b><small>Ringkasan seluruh kelas</small></span><span class="ar">›</span></button>
+  <button class="role wali" onclick="pilih('vWali')"><span class="ic">👨‍👩‍👧</span><span class="tx"><b>Wali Murid</b><small>Lihat kehadiran anak</small></span><span class="ar">›</span></button>
+  <div id="srvStatus" class="msg"></div>
 </div>
 
 <div id="vLogin" class="card hidden">
   <h3 style="text-align:center">Login Guru</h3>
+  <p class="sub">Masukkan akun guru Anda untuk melanjutkan.</p>
   <input type="text" id="user" placeholder="Username" autocomplete="username">
   <input type="password" id="pass" placeholder="Password" autocomplete="current-password">
-  <button id="btnLogin" onclick="doLogin()">LOGIN</button>
+  <button id="btnLogin" onclick="doLogin()">Masuk</button>
   <div id="loginMsg" class="msg"></div>
   <button class="gray" onclick="pilih('vPilih')">Kembali</button>
 </div>
 
 <div id="vKLogin" class="card hidden">
   <h3 style="text-align:center">Login Kepala Sekolah</h3>
+  <p class="sub">Masukkan akun kepala sekolah Anda.</p>
   <input type="text" id="kUser" placeholder="Username" autocomplete="username">
   <input type="password" id="kPass" placeholder="Password" autocomplete="current-password">
-  <button class="purple" id="btnK" onclick="loginKepsek()">LOGIN</button>
+  <button class="purple" id="btnK" onclick="loginKepsek()">Masuk</button>
   <div id="kLoginMsg" class="msg"></div>
   <button class="gray" onclick="pilih('vPilih')">Kembali</button>
 </div>
 
 <div id="vWali" class="card hidden">
   <h3 style="text-align:center">Wali Murid</h3>
-  <p style="font-size:14px;color:#555;text-align:center">Masukkan nama anak dan Kode Wali dari sekolah.</p>
+  <p class="sub">Masukkan nama anak dan Kode Wali dari sekolah.</p>
   <input type="text" id="wNama" placeholder="Nama anak (sesuai data sekolah)">
   <input type="text" id="wKode" placeholder="Kode Wali" autocapitalize="characters" autocomplete="off">
-  <button class="gray" id="btnWali" onclick="loginWali()">LIHAT ABSENSI</button>
+  <button id="btnWali" onclick="loginWali()">Lihat Absensi</button>
   <div id="wMsg" class="msg"></div>
-  <button onclick="pilih('vPilih')">Kembali</button>
+  <button class="gray" onclick="pilih('vPilih')">Kembali</button>
 </div>
 
 <div id="vWaliHasil" class="card hidden">
   <h3 id="wJudul">Absensi</h3>
-  <div id="wInfo" style="font-size:14px;color:#555;margin-bottom:8px"></div>
+  <div id="wInfo" style="font-size:14px;color:var(--muted);margin:-8px 0 12px"></div>
   <input type="month" id="wBulan">
   <button onclick="muatRekapWali()">Tampilkan</button>
   <div id="wrMsg" class="msg"></div>
@@ -104,12 +213,12 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
     <h3>Ringkasan Absensi</h3>
     <input type="date" id="kTanggal">
     <button class="purple" onclick="muatRingkasan()">Tampilkan</button>
-    <button onclick="bukaKRekap()">📊 Rekap Siswa</button>
+    <button class="gray" onclick="bukaKRekap()">📊 Rekap Siswa</button>
     <div id="kMsg" class="msg"></div>
     <div id="kTotal" class="b"></div>
     <div id="kList"></div>
   </div>
-  <button class="red" onclick="logout()">🚪 Keluar</button>
+  <button class="red" onclick="logout()">Keluar</button>
 </div>
 
 <div id="vKRekap" class="card hidden">
@@ -126,7 +235,7 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
 
 <div id="vCam" class="card hidden">
   <h3 id="camTitle"></h3>
-  <p id="camDesc" style="font-size:14px;color:#555"></p>
+  <p id="camDesc" style="font-size:14px;color:var(--muted);margin-top:-6px"></p>
   <video id="video" playsinline muted class="hidden"></video>
   <img id="preview" class="hidden">
   <input type="file" id="fileCam" accept="image/*" capture="user" class="hidden">
@@ -135,6 +244,7 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
   <button class="gray" onclick="$('fileCam').click()">Pakai aplikasi kamera HP</button>
   <button class="red" onclick="closeCam()">Selesai</button>
   <div id="camMsg" class="msg"></div>
+  <div id="ucapanBox" class="ucapan"></div>
   <div id="scanLog"></div>
 </div>
 
@@ -158,20 +268,22 @@ summary{cursor:pointer;font-size:14px;line-height:1.5}
   <div class="card">
     <h3>Absensi Siswa</h3>
     <button class="green" onclick="mulaiScan()">📸 Scan Wajah Murid</button>
-    <button onclick="bukaRekap()">📊 Rekap Siswa</button>
-    <div class="bar" style="margin-top:8px">
+    <button class="gray" onclick="bukaRekap()">📊 Rekap Siswa</button>
+    <div class="bar" style="margin-top:10px">
       <button class="gray" onclick="setSemua('Hadir')">Semua Hadir</button>
       <button class="gray" onclick="muatSiswa()">Muat Ulang</button>
     </div>
-    <div id="listSiswa" style="margin-top:10px">Memuat...</div>
+    <div id="listSiswa" style="margin-top:12px">Memuat...</div>
     <button onclick="simpanManual()">💾 Simpan Manual</button>
     <div id="dashMsg" class="msg"></div>
     <button class="gray" id="btnUlang" style="display:none" onclick="bicara(S.lastUcapan)">🔊 Ulangi Suara</button>
     <button class="gray" onclick="tesSuara()">🔈 Tes Suara</button>
+    <div id="suaraInfo" class="msg"></div>
   </div>
-  <button class="red" onclick="logout()">🚪 Keluar</button>
+  <button class="red" onclick="logout()">Keluar</button>
 </div>
 
+<div class="foot">© KB RA At Tibyan · Membangun Generasi Robbani Berprestasi</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
@@ -286,47 +398,71 @@ function muatSuara(){
 }
 if("speechSynthesis" in window){ muatSuara(); try{ speechSynthesis.onvoiceschanged = muatSuara; }catch(e){} }
 
-// cadangan: suara online (butuh internet), dipakai jika HP tidak punya suara bahasa Indonesia
-function suaraOnline(t){
-  var tiket = ++ttsTiket, bag = [], kata = String(t).split(" "), cur = "";
-  kata.forEach(function(k){
+function infoSuara(t, c){ var e = $("suaraInfo"); if(e){ e.textContent = t; e.className = "msg " + (c || ""); } }
+function tampilUcapan(t){ var e = $("ucapanBox"); if(e){ e.textContent = "🔊 " + t; e.style.display = "block"; } }
+
+// Tahap 1: suara bawaan HP. paksa=true -> pakai suara apa saja yang ada.
+function suaraBawaan(t, paksa, gagal){
+  try{
+    if(!("speechSynthesis" in window)){ gagal(); return; }
+    muatSuara();
+    var semua = speechSynthesis.getVoices() || [];
+    if(!paksa && semua.length && !suaraIndo){ gagal(); return; }   // HP tidak punya suara Indonesia
+    if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+    if(speechSynthesis.paused) speechSynthesis.resume();
+    var u = new SpeechSynthesisUtterance(t), selesai = false, timer;
+    u.rate = 0.9; u.pitch = 1.1; u.volume = 1;
+    if(suaraIndo){ u.voice = suaraIndo; u.lang = suaraIndo.lang; } else { u.lang = "id-ID"; }
+    function tidakJalan(){ if(selesai) return; selesai = true; clearTimeout(timer); gagal(); }
+    u.onstart = function(){ selesai = true; clearTimeout(timer); infoSuara("Suara: bawaan HP" + (suaraIndo ? " (Indonesia)" : ""), "ok"); };
+    u.onerror = tidakJalan;
+    speechSynthesis.speak(u);
+    timer = setTimeout(function(){ try{ speechSynthesis.cancel(); }catch(e){} tidakJalan(); }, 2500);
+  }catch(e){ gagal(); }
+}
+
+// Tahap 2: suara online (butuh internet), dipakai jika HP tidak punya suara Indonesia
+function suaraOnline(t, gagal){
+  var tiket = ++ttsTiket, bag = [], cur = "", i = 0, mulai = false, sudah = false;
+  String(t).split(" ").forEach(function(k){
     if((cur + " " + k).length > 170){ bag.push(cur); cur = k; } else { cur = cur ? cur + " " + k : k; }
   });
   if(cur) bag.push(cur);
-  var i = 0;
+  function tidakJalan(){ if(sudah || mulai) return; sudah = true; gagal(); }
   function lanjut(){
     if(tiket !== ttsTiket || i >= bag.length) return;
-    ttsAudio.onended = lanjut; ttsAudio.onerror = lanjut;
+    ttsAudio.onended = lanjut;
+    ttsAudio.onerror = function(){ if(mulai) lanjut(); else tidakJalan(); };
+    ttsAudio.onplaying = function(){ if(!mulai){ mulai = true; infoSuara("Suara: online (butuh internet)", "ok"); } };
     ttsAudio.src = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=id&q=" + encodeURIComponent(bag[i++]);
-    var p = ttsAudio.play(); if(p && p.catch) p.catch(function(){});
+    var p = ttsAudio.play(); if(p && p.catch) p.catch(function(){ if(tiket === ttsTiket) tidakJalan(); });
   }
   lanjut();
 }
+
 function bicara(t){
   if(!t) return;
-  ttsTiket++;                                   // hentikan suara online yang masih berjalan
+  tampilUcapan(t);                                   // teks selalu tampil di layar, walau suara gagal
+  ttsTiket++;
   try{ ttsAudio.pause(); }catch(e){}
-  if(!("speechSynthesis" in window)){ suaraOnline(t); return; }
-  try{
-    muatSuara();
-    var adaDaftar = (speechSynthesis.getVoices() || []).length > 0;
-    if(adaDaftar && !suaraIndo){ suaraOnline(t); return; }   // HP tidak punya suara Indonesia
-    if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
-    if(speechSynthesis.paused) speechSynthesis.resume();
-    var u = new SpeechSynthesisUtterance(t), mulai = false, timer;
-    u.lang = "id-ID"; u.rate = 0.9; u.pitch = 1.1; u.volume = 1;
-    if(suaraIndo){ u.voice = suaraIndo; u.lang = suaraIndo.lang; }
-    u.onstart = function(){ mulai = true; clearTimeout(timer); };
-    u.onerror = function(){ clearTimeout(timer); if(!mulai) suaraOnline(t); };
-    speechSynthesis.speak(u);
-    timer = setTimeout(function(){ if(!mulai){ try{ speechSynthesis.cancel(); }catch(e){} suaraOnline(t); } }, 2500);
-  }catch(e){ suaraOnline(t); }
+  suaraBawaan(t, false, function(){
+    suaraOnline(t, function(){
+      suaraBawaan(t, true, function(){
+        infoSuara("Suara tidak bisa diputar di HP ini. Cek volume media dan mode senyap. Teks tetap tampil di layar.", "err");
+      });
+    });
+  });
 }
 function tesSuara(){
   unlockSuara();
+  infoSuara("Menguji suara...", "info");
   tit();
   setTimeout(function(){ bicara("Tes suara. Absensi siap digunakan."); }, JEDA);
 }
+// aktifkan izin suara pada sentuhan pertama di mana pun (termasuk saat halaman dimuat ulang)
+["click","touchend"].forEach(function(ev){
+  document.addEventListener(ev, function f(){ unlockSuara(); document.removeEventListener(ev, f); });
+});
 function susunUcapan(r){
   var h = r.hasil || [];
   var w = ", tanggal " + r.tanggalTeks + ", pukul " + r.jam + (r.menit === 0 ? " tepat." : " lewat " + r.menit + " menit.");
@@ -514,7 +650,7 @@ function muatModel(){
 }
 function bukaKamera(judul, desc){
   stopCam(); $("camTitle").textContent = judul; $("camDesc").textContent = desc;
-  $("scanLog").innerHTML = ""; $("preview").classList.add("hidden"); say($("camMsg"), ""); show("vCam");
+  $("scanLog").innerHTML = ""; $("ucapanBox").style.display = "none"; $("preview").classList.add("hidden"); say($("camMsg"), ""); show("vCam");
 }
 function daftarWajah(i){
   var x = S.siswa[i]; if(!x) return;
