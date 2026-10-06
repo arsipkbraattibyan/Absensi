@@ -240,7 +240,7 @@ video{object-fit:cover}
 #vCam.aktif h3{margin-bottom:8px}
 #vCam.aktif video{flex:0 1 46vh;flex:0 1 46dvh;min-height:150px;max-height:none;object-fit:cover;margin-bottom:0}
 #vCam.aktif #scanLog{flex:0 1 auto;min-height:0;max-height:10vh;max-height:10dvh;overflow-y:auto}
-
+ 
 /* ---- ringan untuk HP murah ---- */
 body{background:var(--bg)}
 .logo-login{filter:none}
@@ -542,20 +542,66 @@ function suaraOnline(t, gagal){
   lanjut();
 }
  
+// Tahap 3: suara cadangan di dalam HP (tanpa mesin suara Google). Dimuat hanya jika tahap 1 dan 2 gagal.
+// Memakai eSpeak (suara Italia, ejaannya mirip bahasa Indonesia) -> jelas walau agak "robot".
+var ME = { janji: null };
+function muatMe(){
+  if(ME.janji) return ME.janji;
+  var CDN = "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/";
+  ME.janji = import(CDN + "+esm").then(function(m){
+    var lib = m.default || m;
+    return Promise.all([
+      fetch(CDN + "src/mespeak_config.json").then(function(r){ return r.json(); }),
+      fetch(CDN + "voices/it.json").then(function(r){ return r.json(); })
+    ]).then(function(d){ lib.loadConfig(d[0]); lib.loadVoice(d[1]); return lib; });
+  }).catch(function(e){ ME.janji = null; throw e; });
+  return ME.janji;
+}
+function suaraOffline(t, gagal){
+  var tiket = ++ttsTiket;
+  muatMe().then(function(lib){
+    if(tiket !== ttsTiket) return;
+    var data = lib.speak(String(t).toLowerCase(), { rawdata: "array", voice: "it", speed: 140, pitch: 55 });
+    if(!data || !data.length) throw new Error("kosong");
+    var url = URL.createObjectURL(new Blob([new Uint8Array(data)], { type: "audio/wav" }));
+    ttsAudio.onended = function(){ try{ URL.revokeObjectURL(url); }catch(e){} };
+    ttsAudio.onerror = function(){ gagal(); };
+    ttsAudio.onplaying = function(){ infoSuara("Suara: cadangan di HP (agak robot)", "ok"); };
+    ttsAudio.src = url;
+    var p = ttsAudio.play(); if(p && p.catch) p.catch(function(){ gagal(); });
+  }).catch(function(){ gagal(); });
+}
+ 
+// Ingat tahap yang gagal selama aplikasi dibuka, supaya scan berikutnya tidak menunggu lagi
+var gagalTahap = { bawaan: false, online: false, paksa: false };
+function pesanGagal(){
+  var n = 0; try{ n = (speechSynthesis.getVoices() || []).length; }catch(e){}
+  infoSuara("Suara tidak bisa diputar di HP ini (suara HP: " + n + (suaraIndo ? ", ada Indonesia" : ", tanpa Indonesia") +
+            "). Cek volume media, mode senyap, dan internet. Teks tetap tampil di layar.", "err");
+}
 function bicara(t){
   if(!t) return;
-  tampilUcapan(t);                                   // teks selalu tampil di layar, walau suara gagal
+  tampilUcapan(t);
   ttsTiket++;
   try{ ttsAudio.pause(); }catch(e){}
-  suaraBawaan(t, false, function(){
-    suaraOnline(t, function(){
-      suaraBawaan(t, true, function(){
-        infoSuara("Suara tidak bisa diputar di HP ini. Cek volume media dan mode senyap. Teks tetap tampil di layar.", "err");
-      });
+  function t1(){
+    if(gagalTahap.bawaan) return t2();
+    suaraBawaan(t, false, function(){ gagalTahap.bawaan = true; t2(); });
+  }
+  function t2(){
+    if(gagalTahap.online) return t3();
+    suaraOnline(t, function(){ gagalTahap.online = true; t3(); });
+  }
+  function t3(){
+    suaraOffline(t, function(){
+      if(gagalTahap.paksa) return pesanGagal();
+      suaraBawaan(t, true, function(){ gagalTahap.paksa = true; pesanGagal(); });
     });
-  });
+  }
+  t1();
 }
 function tesSuara(){
+  gagalTahap = { bawaan: false, online: false, paksa: false };
   unlockSuara();
   infoSuara("Menguji suara...", "info");
   tit();
@@ -875,7 +921,7 @@ function catatHadir(nama){
   S.lastUcapan = kalimat; $("btnUlang").style.display = "block";
   setTimeout(function(){ bicara(kalimat); }, JEDA);
   logBaris("✅ " + nama + " — Hadir");
-
+ 
   // penyimpanan ke server berjalan di belakang
   api("simpanAbsen", { token:S.token, records:[{ nama:nama, status:"Hadir" }], skipJikaAda:true }).then(function(r){
     if(sesiHabis(r)){ logout(r.message); return; }
